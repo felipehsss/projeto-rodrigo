@@ -1,0 +1,1 @@
+$ curl -X POST -H "Content-Type:application/json" -d '{"id":11,"titulo":"lavar a roupa","descricao":"lavar a roupa que sujou ontem","status":"pendente"}' http://localhost:3000/tarefas
