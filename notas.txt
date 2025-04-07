@@ -1,1 +1,17 @@
-$ curl -X POST -H "Content-Type:application/json" -d '{"id":11,"titulo":"lavar a roupa","descricao":"lavar a roupa que sujou ontem","status":"pendente"}' http://localhost:3000/tarefas
+!post:
+curl -X POST http://localhost:3000/tarefas ^
+  -H "Content-Type: application/json" ^
+  -H "Authorization: SEGREDO" ^
+  -d "{\"titulo\": \"Nova Tarefa\", \"descricao\": \"Descrição nova\", \"status\": \"pendente\"}"
+!PUT:
+curl -X PUT http://localhost:3000/tarefas/1 ^
+  -H "Content-Type: application/json" ^
+  -H "Authorization: SEGREDO" ^
+  -d "{\"titulo\": \"Atualizado\", \"descricao\": \"Nova descrição\", \"status\": \"feito\"}"
+!PATCH:
+  curl -X PATCH http://localhost:3000/tarefas/1 ^
+  -H "Content-Type: application/json" ^
+  -H "Authorization: SEGREDO" ^
+  -d "{\"status\": \"em andamento\"}"
+
+!DELETE
