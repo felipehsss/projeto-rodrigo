@@ -1,17 +1,12 @@
 !post:
-curl -X POST http://localhost:3000/tarefas ^
-  -H "Content-Type: application/json" ^
-  -H "Authorization: SEGREDO" ^
-  -d "{\"titulo\": \"Nova Tarefa\", \"descricao\": \"Descrição nova\", \"status\": \"pendente\"}"
+curl -X POST http://localhost:3000/tarefas -H "Content-Type: application/json" -H "Authorization: SEGREDO" -d "{\"titulo\": \"Nova Tarefa\", \"descricao\": \"Descrição nova\", \"status\": \"pendente\"}"
+
 !PUT:
 curl -X PUT http://localhost:3000/tarefas/1 ^
-  -H "Content-Type: application/json" ^
-  -H "Authorization: SEGREDO" ^
-  -d "{\"titulo\": \"Atualizado\", \"descricao\": \"Nova descrição\", \"status\": \"feito\"}"
-!PATCH:
-  curl -X PATCH http://localhost:3000/tarefas/1 ^
-  -H "Content-Type: application/json" ^
-  -H "Authorization: SEGREDO" ^
-  -d "{\"status\": \"em andamento\"}"
+  -H "Content-Type: application/json" -H "Authorization: SEGREDO" -d "{\"titulo\": \"Atualizado\", \"descricao\": \"Nova descrição\", \"status\": \"feito\"}"
 
-!DELETE
+!PATCH:
+  curl -X PATCH http://localhost:3000/tarefas/1 -H "Content-Type: application/json" -H "Authorization: SEGREDO" -d "{\"status\": \"em andamento\"}"
+
+!DELETE:
+curl -X DELETE http://localhost:3000/tarefas/14 -H "Authorization: SEGREDO"                                                                        

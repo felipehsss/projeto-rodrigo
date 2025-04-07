@@ -3,88 +3,171 @@ import axios from "axios";
 import inquirer from "inquirer";
 
 const API_URL = "http://localhost:3000";
+const TOKEN = "SEGREDO";
 
-// Exibir todas as tarefas
+//
 async function listarTarefas() {
   try {
-    const response = await axios.get(`${API_URL}/tarefas`);
-    return response.data;
-  } catch (error) {
-    console.error(chalk.red('ERRO ao listar Tarefas: '), error.message);
+    const res = await axios.get(`${API_URL}/tarefas`);
+    return res.data;
+  } catch (err) {
+    console.error(chalk.red("Erro ao listar tarefas:"), err.message);
   }
 }
 
-// Exibir detalhes de uma tarefa por ID
-async function exibirDetalhesTarefas(id) {
+async function exibirDetalhesTarefa(id) {
   try {
-    const response = await axios.get(`${API_URL}/tarefas/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error(chalk.red(`ERRO ao exibir detalhes da tarefa com ID: `), error.message);
-    return null;
+    const res = await axios.get(`${API_URL}/tarefas/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error(chalk.red("Erro ao exibir tarefa:"), err.message);
   }
 }
 
-// Exibir menu principal
+async function criarTarefa() {
+  const respostas = await inquirer.prompt([
+    { name: "titulo", message: "Título da tarefa:" },
+    { name: "descricao", message: "Descrição da tarefa:" },
+    { name: "status", message: "Status da tarefa:" }
+  ]);
+
+  try {
+    const res = await axios.post(`${API_URL}/tarefas`, respostas, {
+      headers: { Authorization: TOKEN }
+    });
+    console.log(chalk.green("Tarefa criada com sucesso!"), res.data);
+  } catch (err) {
+    console.error(chalk.red("Erro ao criar tarefa:"), err.message);
+  }
+}
+
+async function atualizarTarefa() {
+  const respostas = await inquirer.prompt([
+    { name: "id", message: "ID da tarefa a atualizar (PUT):" },
+    { name: "titulo", message: "Novo título:" },
+    { name: "descricao", message: "Nova descrição:" },
+    { name: "status", message: "Novo status:" }
+  ]);
+
+  try {
+    const res = await axios.put(`${API_URL}/tarefas/${respostas.id}`, {
+      titulo: respostas.titulo,
+      descricao: respostas.descricao,
+      status: respostas.status
+    }, {
+      headers: { Authorization: TOKEN }
+    });
+
+    console.log(chalk.green("Tarefa atualizada com sucesso!"), res.data);
+  } catch (err) {
+    console.error(chalk.red("Erro ao atualizar tarefa:"), err.message);
+  }
+}
+
+async function atualizarParcial() {
+  const respostas = await inquirer.prompt([
+    { name: "id", message: "ID da tarefa a atualizar (PATCH):" },
+    { name: "status", message: "Novo status:" }
+  ]);
+
+  try {
+    const res = await axios.patch(`${API_URL}/tarefas/${respostas.id}`, {
+      status: respostas.status
+    }, {
+      headers: { Authorization: TOKEN }
+    });
+
+    console.log(chalk.green("Status atualizado com sucesso!"), res.data);
+  } catch (err) {
+    console.error(chalk.red("Erro ao atualizar status:"), err.message);
+  }
+}
+
+async function deletarTarefa() {
+  const resposta = await inquirer.prompt([
+    { name: "id", message: "ID da tarefa a deletar:" }
+  ]);
+
+  try {
+    const res = await axios.delete(`${API_URL}/tarefas/${resposta.id}`, {
+      headers: { Authorization: TOKEN }
+    });
+
+    console.log(chalk.green("Tarefa deletada com sucesso!"), res.data);
+  } catch (err) {
+    console.error(chalk.red("Erro ao deletar tarefa:"), err.message);
+  }
+}
+
+// Menu principal
 async function exibirMenu() {
-  console.log('\n\n');
-  const perguntas = [
+  console.clear();
+  console.log(chalk.blue.bold("\n==== SISTEMA DE TAREFAS ====\n"));
+
+  const { opcao } = await inquirer.prompt([
     {
-      type: 'list',
-      name: 'opcao',
-      message: chalk.yellow('Escolha uma opção: '),
+      type: "list",
+      name: "opcao",
+      message: "Escolha uma opção:",
       choices: [
-        { name: chalk.green('Listar Tarefas'), value: 'listar' },
-        { name: chalk.green('Exibir detalhes da tarefa'), value: 'exibir' },
-        { name: chalk.green('Sair'), value: 'sair' },
+        { name: "Listar tarefas", value: "listar" },
+        { name: "Exibir detalhes de uma tarefa", value: "detalhes" },
+        { name: "Criar nova tarefa", value: "criar" },
+        { name: "Atualizar tarefa (PUT)", value: "atualizar" },
+        { name: "Atualizar status (PATCH)", value: "parcial" },
+        { name: "Deletar tarefa", value: "deletar" },
+        { name: "Sair", value: "sair" }
       ]
     }
-  ];
+  ]);
 
-  try {
-    const resposta = await inquirer.prompt(perguntas);
+  switch (opcao) {
+    case "listar":
+      const tarefas = await listarTarefas();
+      if (tarefas && tarefas.length) {
+        console.log(chalk.green("\nTarefas:"));
+        tarefas.forEach(t =>
+          console.log(` - ${t.id}: ${t.titulo} (${t.status})`)
+        );
+      } else {
+        console.log(chalk.yellow("Nenhuma tarefa encontrada."));
+      }
+      break;
 
-    switch (resposta.opcao) {
-      case 'listar':
-        const tarefas = await listarTarefas();
-        if (Array.isArray(tarefas) && tarefas.length > 0) {
-          console.log(chalk.green('Lista de Tarefas:'));
-          tarefas.forEach(tarefa => {
-            console.log(` - ${chalk.cyan(tarefa.id)}: ${chalk.green(tarefa.titulo)} - ${chalk.yellow(tarefa.descricao)} - ${chalk.blue(tarefa.status)}`);
-          });
-        } else {
-          console.log(chalk.yellow('Nenhuma tarefa encontrada.'));
-        }
-        exibirMenu();
-        break;
+    case "detalhes":
+      const { id } = await inquirer.prompt([
+        { name: "id", message: "Digite o ID da tarefa:" }
+      ]);
+      const tarefa = await exibirDetalhesTarefa(id);
+      if (tarefa) {
+        console.log(chalk.green("\nDetalhes da tarefa:"));
+        console.log(tarefa);
+      }
+      break;
 
-      case 'exibir':
-        const idResposta = await inquirer.prompt([
-          {
-            type: 'input',
-            name: 'id',
-            message: chalk.blue('Digite o ID da tarefa: ')
-          }
-        ]);
+    case "criar":
+      await criarTarefa();
+      break;
 
-        const tarefa = await exibirDetalhesTarefas(idResposta.id);
-        if (tarefa) {
-          console.log(chalk.green('Detalhes da tarefa:'));
-          console.log(` - ${chalk.cyan(tarefa.id)}: ${chalk.green(tarefa.titulo)} - ${chalk.yellow(tarefa.descricao)} - ${chalk.blue(tarefa.status)}`);
-        } else {
-          console.log(chalk.blue('Tarefa não encontrada!'));
-        }
-        exibirMenu();
-        break;
+    case "atualizar":
+      await atualizarTarefa();
+      break;
 
-      case 'sair':
-        console.log(chalk.blue('Saindo do Sistema...'));
-        break;
-    }
-  } catch (error) {
-    console.error(chalk.red('Ocorreu um erro inesperado'), error);
+    case "parcial":
+      await atualizarParcial();
+      break;
+
+    case "deletar":
+      await deletarTarefa();
+      break;
+
+    case "sair":
+      console.log(chalk.blue("Até mais!"));
+      return;
   }
+
+  await inquirer.prompt([{ name: "continue", message: "Pressione Enter para continuar..." }]);
+  await exibirMenu();
 }
 
-// Iniciar o menu
 exibirMenu();

@@ -34,13 +34,14 @@ function salvarTarefas() {
   }
 }
 
-// resgistro de LOG 
+// resgistro de LOG s
 function registrarLog(acao, detalhe = '') {
   const timestamp = new Date().toISOString();
   const registro = `[${timestamp}] ${acao} ${detalhe}\n`;
 
   console.log(registro.trim());
-  // Também salva no arquivo logs.txt
+  
+  //salvar no logs
   fs.appendFile('logs.txt', registro, (err) => {
     if (err) {
       console.error('Erro ao registrar log:', err);
@@ -73,7 +74,7 @@ app.get('/tarefas/:id', (req, res) => {
   }
 });
 
-// Criar nova tarefa
+// Criar nova tarefa por post
 app.post('/tarefas', autenticar, (req, res) => {
   const novaTarefa = req.body;
   novaTarefa.id = tarefas.length > 0 ? tarefas[tarefas.length - 1].id + 1 : 1;
@@ -98,7 +99,7 @@ app.put('/tarefas/:id', autenticar, (req, res) => {
   }
 });
 
-// Atualização parcial (PATCH)
+// Atualização parcial por patfch
 app.patch('/tarefas/:id', autenticar, (req, res) => {
   const id = parseInt(req.params.id);
   const index = tarefas.findIndex(t => t.id === id);
@@ -126,19 +127,17 @@ app.delete('/tarefas/:id', autenticar, (req, res) => {
   }
 });
 
-// OPTIONS para /tarefas
+// OPTIONS 
 app.options('/tarefas', (req, res) => {
   res.set('Allow', 'GET, POST, OPTIONS');
   res.sendStatus(204);
 });
-
-// OPTIONS /tarefas com params
 app.options('/tarefas/:id', (req, res) => {
   res.set('Allow', 'GET, PUT, PATCH, DELETE, OPTIONS');
   res.sendStatus(204);
 });
 
-// Iniciar servidor
+// Iniciar servidor RAIZ
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
 });
